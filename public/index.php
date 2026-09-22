@@ -2,115 +2,44 @@
 
 declare(strict_types=1);
 
-// Iniciar sesión para manejar datos del usuario logueado
 session_start();
 
-// 1. CARGA DE DEPENDENCIAS Y CONFIGURACIÓN
-require_once __DIR__ . '/../vendor/autoload.php';      // Autoload de Composer (Eloquent)
-require_once __DIR__ . '/../config/autoload.php';      // Autoload de clases App\*
-require_once __DIR__ . '/../config/database.php';      // Conexión a la DB
-require_once __DIR__ . '/../models/Barberia.php';      // Modelo de la tabla barberias
-require_once __DIR__ . '/../models/Barbero.php';       // Modelo de la tabla barberos
-require_once __DIR__ . '/../models/Turno.php';         // Modelo de la tabla turnos
+require_once __DIR__ . '/../vendor/autoload.php';      
+require_once __DIR__ . '/../config/autoload.php';      
+require_once __DIR__ . '/../config/database.php';      
+require_once __DIR__ . '/../models/Barberia.php';      
+require_once __DIR__ . '/../models/Barbero.php';       
+require_once __DIR__ . '/../models/Turno.php';         
 
-// Importar controladores
 use App\Controllers\TurnoController;
 use App\Controllers\BarberoController;
+use App\Router;
 
+$router = new Router();
 
-// --- ROUTER ---
-
-$method = $_SERVER['REQUEST_METHOD'];
-$requestUri = $_SERVER['REQUEST_URI'];
-$proyecto_path = '/Barber_Manager';
-
-// Obtener la ruta real de la URL y quitar el prefijo del proyecto
-$path = str_replace($proyecto_path, '', $requestUri);
-$path = parse_url($path, PHP_URL_PATH);
-
-// Eliminar /public/ si viene en la ruta para no tener problemas de coincidencia
-$path = str_replace('/public/', '/', $path);
-
-// Normalizar la ruta para evitar barras repetidas y manejar la raíz correctamente
-$path = '/' . trim($path, '/');
-if ($path !== '/') {
-    $path = rtrim($path, '/');
-}
-
-// ============================================
-// RUTAS DE BIENVENIDA
-// ============================================
-
-// RUTA: Página de inicio con splash (GET /)
-if ($method === 'GET' && ($path === '/' || $path === '')) {
-    BarberoController::splash();
+// Redirigir el index a la pantalla inicial (splash.html)
+$router->get('/', function() {
+    header('Location: /Barber_Manager/splash.html');
     exit;
-}
+});
 
-// RUTA: Vista principal de bienvenida (GET /welcome)
-if ($method === 'GET' && $path === '/welcome') {
-    BarberoController::bienvenida();
-    exit;
-}
+// API Endpoints para Autenticación y Usuarios
+$router->get('/api/auth/me', [BarberoController::class, 'me']);
+$router->get('/api/google-auth', [BarberoController::class, 'googleAuth']);
+$router->get('/api/google-callback', [BarberoController::class, 'googleCallback']);
+$router->post('/api/login-email', [BarberoController::class, 'loginEmailRequest']);
+$router->post('/api/login-email-confirm', [BarberoController::class, 'loginEmailConfirm']);
+$router->post('/api/logout', [BarberoController::class, 'logout']);
+$router->post('/api/perfil', [BarberoController::class, 'guardarPerfil']);
 
-// RUTA: Vista de inicio de sesión (GET /login)
-if ($method === 'GET' && $path === '/login') {
-    BarberoController::login();
-    exit;
-}
+// API Endpoints para Empresa
+$router->post('/api/nueva-empresa', [BarberoController::class, 'guardarEmpresa']);
 
-// RUTA: Redirigir a Google para autenticación (GET /google-auth)
-if ($method === 'GET' && $path === '/google-auth') {
-    BarberoController::googleAuth();
-    exit;
-}
+// API Endpoints para Turnos
+$router->post('/api/turnos', [TurnoController::class, 'crear']);
+$router->get('/api/turnos', [TurnoController::class, 'listar']);
 
-// RUTA: Callback de Google OAuth (GET /google-callback)
-if ($method === 'GET' && $path === '/google-callback') {
-    BarberoController::googleCallback();
-    exit;
-}
+// API Endpoints para Barberos
+$router->get('/api/barberos', [BarberoController::class, 'listar']);
 
-// RUTA: Solicitar clave temporal para login por email (POST /login-email)
-if ($method === 'POST' && $path === '/login-email') {
-    BarberoController::loginEmailRequest();
-    exit;
-}
-
-// RUTA: Confirmar clave temporal para login por email (POST /login-email-confirm)
-if ($method === 'POST' && $path === '/login-email-confirm') {
-    BarberoController::loginEmailConfirm();
-    exit;
-}
-
-// RUTA: Cerrar sesión (GET /logout)
-if ($method === 'GET' && $path === '/logout') {
-    BarberoController::logout();
-    exit;
-}
-
-// RUTA: Selección de rol después del login (GET /seleccion-rol)
-if ($method === 'GET' && $path === '/seleccion-rol') {
-    BarberoController::seleccionRol();
-    exit;
-}
-
-// ============================================
-// RUTAS DE TURNOS
-// ============================================
-
-// RUTA: Crear turno (POST /turnos)
-if ($method === 'POST' && $path === '/turnos') {
-    TurnoController::crear();
-    exit;
-}
-
-// RUTA: Listar turnos (GET /turnos)
-if ($method === 'GET' && $path === '/turnos') {
-    TurnoController::listar();
-    exit;
-}
-
-// 404
-http_response_code(404);
-echo json_encode(["error" => "Ruta no encontrada"]);
+$router->resolve($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

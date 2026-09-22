@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Rye&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <title>Barber Manager - Nueva Empresa</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: repeating-linear-gradient(135deg,
+                    #ffffff 0px, #ffffff 40px,
+                    #c8102e 40px, #c8102e 80px,
+                    #ffffff 80px, #ffffff 120px,
+                    #134a7a 120px, #134a7a 160px);
+            min-height: 100vh;
+            display: flex; flex-direction: column; overflow-x: hidden;
+        }
+        .top-bar {
+            width: 100%; height: 145px;
+            background-color: #432a1aff;
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(to right, #2d1810, #4a2f1d, #2d1810);
+            background-size: 100% 20px, 20px 100%, 100% 100%;
+            border-bottom: 4px solid #1a0f0a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 50px; z-index: 10;
+        }
+        .header-logo { display: flex; align-items: center; gap: 20px; }
+        .header-logo img { height: 170px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6)); transition: all 0.3s ease; }
+        .header-logo img:hover { filter: drop-shadow(0 0 15px rgba(255,255,255,0.8)); transform: scale(1.05); }
+        .header-logo span { font-family: 'Rye', serif; color: #f5f5dc; font-size: 50px; text-shadow: 3px 3px 6px rgba(0,0,0,0.9); }
+        
+        .back-link {
+            color: #f5f5dc; text-decoration: none; font-weight: 700; font-size: 14px;
+            padding: 12px 22px; border-radius: 999px; border: 2px solid rgba(245,245,220,0.45);
+            background: rgba(255,255,255,0.05); transition: all 0.25s ease;
+        }
+        .back-link:hover { background: #f5f5dc; color: #432a1a; transform: translateY(-2px); }
+
+        .hero-section { display: flex; justify-content: center; align-items: center; flex-grow: 1; padding: 40px 20px; }
+        
+        .wood-panel {
+            background-color: #432a1aff;
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(to right, #2d1810, #432a1a, #2d1810);
+            background-size: 100% 20px, 20px 100%, 100% 100%;
+            border: 4px solid #1a0f0a; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            padding: 50px 40px; text-align: center; max-width: 800px; width: 100%;
+            animation: fadeIn 0.8s ease-out; color: #f5f5dc;
+        }
+        
+        .panel-title {
+            font-size: 32px; font-family: 'Rye', serif; color: #f5f5dc;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8); line-height: 1.2;
+            margin-bottom: 30px;
+        }
+
+        .top-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .inputs-col {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .logo-col {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-upload {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 2px dashed rgba(245, 245, 220, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            color: #e8dcc4;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-upload:hover {
+            border-color: #f5f5dc;
+            background: rgba(245, 245, 220, 0.1);
+        }
+
+        .logo-upload span {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .logo-upload small {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .logo-upload input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #f5f5dc;
+            margin-bottom: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(245,245,220,0.2);
+            padding-bottom: 5px;
+        }
+        
+        .detail-group {
+            display: flex; flex-direction: column;
+        }
+        .detail-label {
+            font-size: 14px; color: #e8dcc4; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 8px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        .detail-input {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px; color: #f5f5dc; font-weight: 600;
+            padding: 12px 15px; background: rgba(0,0,0,0.3); border-radius: 8px;
+            border: 1px solid rgba(245,245,220,0.2);
+            outline: none; transition: all 0.3s ease;
+        }
+        .detail-input:focus {
+            background: rgba(0,0,0,0.5);
+            border-color: rgba(245,245,220,0.6);
+            box-shadow: 0 0 8px rgba(245,245,220,0.2);
+        }
+        .detail-input[type="file"] {
+            padding: 10px;
+        }
+
+        #map {
+            height: 300px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid rgba(245,245,220,0.3);
+            margin-top: 5px;
+        }
+        
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .schedule-table th, .schedule-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(245,245,220,0.1);
+        }
+        .schedule-table th {
+            color: #e8dcc4;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .time-input {
+            width: 100px;
+            padding: 5px 8px;
+            border-radius: 5px;
+            border: 1px solid rgba(245,245,220,0.2);
+            background: rgba(0,0,0,0.3);
+            color: #f5f5dc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .buttons-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px;
+            font-size: 18px; font-weight: 700; 
+            border: none; border-radius: 8px;
+            cursor: pointer; transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: rgba(245, 245, 220, 0.2);
+            color: #f5f5dc;
+            border: 1px solid rgba(245, 245, 220, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(245, 245, 220, 0.3);
+        }
+
+        .submit-btn {
+            color: #432a1a;
+            background: #f5f5dc; 
+            text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            background: #fff;
+        }
+
+        .success-message {
+            background-color: rgba(46, 204, 113, 0.2);
+            border: 1px solid #2ecc71;
+            color: #f5f5dc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .error-message {
+            background-color: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #f5f5dc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar { flex-direction: column; height: auto; padding: 15px 20px; gap: 15px; }
+            .header-logo span { font-size: 32px; }
+            .wood-panel { padding: 30px 20px; }
+            .panel-title { font-size: 26px; }
+            .top-section { grid-template-columns: 1fr; }
+            .schedule-table th, .schedule-table td { padding: 5px; }
+            .time-input { width: 85px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <div class="header-logo">
+            <img src="/Barber_Manager/images/splash-logo.png" alt="BarberApp Logo">
+            <span>Barber Manager</span>
+        </div>
+        <a href="/Barber_Manager/seleccion_rol.html" class="back-link">Volver</a>
+    </header>
+
+    <main class="hero-section">
+        <div class="wood-panel">
+            <div class="success-message" id="msg-success">¡Empresa registrada exitosamente!</div>
+            <div class="error-message" id="msg-error">Hubo un error.</div>
+            
+            <h1 class="panel-title">Registrar Nueva Empresa</h1>
+
+            <form id="empresa-form" style="text-align: left;">
+                
+                <h2 class="section-title">Empresa ℹ️</h2>
+                
+                <div class="top-section">
+                    <div class="inputs-col">
+                        <div class="detail-group">
+                            <input type="text" id="empresa_nombre" name="nombre" class="detail-input" placeholder="Nombre de la empresa" required>
+                        </div>
+                        
+                        <div class="detail-group">
+                            <input type="text" id="empresa_slogan" name="slogan" class="detail-input" placeholder="Slogan (opcional)">
+                        </div>
+                    </div>
+                    
+                    <div class="logo-col">
+                        <div class="logo-upload" id="logo_preview">
+                            <span>Agregar LOGO</span>
+                            <small>(opcional)</small>
+                            <input type="file" id="empresa_logo" name="logo" accept="image/*" onchange="previewLogo(event)">
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Ubicación primera sucursal ℹ️</h2>
+                <div class="detail-group" style="margin-bottom: 20px;">
+                    <input type="text" id="empresa_direccion" name="direccion" class="detail-input" placeholder="Dirección" required>
+                    <div id="map"></div>
+                    <input type="hidden" id="lat" name="latitud" value="-34.6037">
+                    <input type="hidden" id="lng" name="longitud" value="-58.3816">
+                </div>
+
+                <div class="detail-group">
+                    <label class="detail-label">Horarios de Atención</label>
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Día</th>
+                                <th>Apertura</th>
+                                <th>Cierre</th>
+                            </tr>
+                        </thead>
+                        <tbody id="horarios-tbody">
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="buttons-row">
+                    <a href="/Barber_Manager/seleccion_rol.html" class="btn btn-secondary">Volver</a>
+                    <button type="submit" class="btn submit-btn">Continuar</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Verificar sesión
+            try {
+                const res = await fetch('/Barber_Manager/api/auth/me');
+                if (!res.ok) {
+                    window.location.href = '/Barber_Manager/login.html';
+                    return;
+                }
+            } catch (error) {
+                console.error('Error fetching user info:', error);
+            }
+
+            // Generar tabla de horarios
+            const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const tbody = document.getElementById('horarios-tbody');
+            dias.forEach(dia => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${dia}</td>
+                    <td><input type="time" name="apertura_${dia.toLowerCase()}" class="time-input"></td>
+                    <td><input type="time" name="cierre_${dia.toLowerCase()}" class="time-input"></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Mapa
+            var initialLat = -34.6037;
+            var initialLng = -58.3816;
+            var map = L.map('map').setView([initialLat, initialLng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+            var marker = L.marker([initialLat, initialLng], { draggable: true }).addTo(map);
+
+            marker.on('dragend', function(event) {
+                var position = marker.getLatLng();
+                document.getElementById('lat').value = position.lat;
+                document.getElementById('lng').value = position.lng;
+            });
+
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var userLat = position.coords.latitude;
+                    var userLng = position.coords.longitude;
+                    map.setView([userLat, userLng], 14);
+                    marker.setLatLng([userLat, userLng]);
+                    document.getElementById('lat').value = userLat;
+                    document.getElementById('lng').value = userLng;
+                });
+            }
+        });
+
+        function previewLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const logoPreview = document.getElementById('logo_preview');
+                    logoPreview.style.backgroundImage = `url(${e.target.result})`;
+                    logoPreview.style.backgroundSize = 'cover';
+                    logoPreview.style.backgroundPosition = 'center';
+                    logoPreview.innerHTML = `<input type="file" id="empresa_logo" name="logo" accept="image/*" onchange="previewLogo(event)">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        document.getElementById('empresa-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const res = await fetch('/Barber_Manager/api/nueva-empresa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                
+                if (result.ok) {
+                    document.getElementById('msg-success').style.display = 'block';
+                    document.getElementById('msg-error').style.display = 'none';
+                    if (result.redirect) {
+                        setTimeout(() => window.location.href = result.redirect, 1500);
+                    }
+                } else {
+                    document.getElementById('msg-error').textContent = result.message || 'Error al guardar';
+                    document.getElementById('msg-error').style.display = 'block';
+                    document.getElementById('msg-success').style.display = 'none';
+                }
+            } catch (error) {
+                document.getElementById('msg-error').textContent = 'Error de red';
+                document.getElementById('msg-error').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

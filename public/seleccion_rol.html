@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Rye&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Barber Manager - Seleccionar Rol</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: repeating-linear-gradient(135deg,
+                    #ffffff 0px,
+                    #ffffff 40px,
+                    #c8102e 40px,
+                    #c8102e 80px,
+                    #ffffff 80px,
+                    #ffffff 120px,
+                    #134a7a 120px,
+                    #134a7a 160px);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Franja superior tipo madera marrón */
+        .top-bar {
+            width: 100%;
+            height: 145px;
+            background-color: #432a1aff;
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(to right, #2d1810, #4a2f1d, #2d1810);
+            background-size: 100% 20px, 20px 100%, 100% 100%;
+            border-bottom: 4px solid #1a0f0a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 50px;
+            z-index: 10;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-logo img {
+            height: 170px;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+            transition: all 0.3s ease;
+        }
+
+        .header-logo img:hover {
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
+            transform: scale(1.05);
+        }
+
+        .header-logo span {
+            font-family: 'Rye', serif;
+            color: #f5f5dc;
+            font-size: 50px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+        }
+
+        .logout-link {
+            color: #f5f5dc;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 12px 22px;
+            border-radius: 999px;
+            border: 2px solid rgba(245, 245, 220, 0.45);
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .logout-link:hover {
+            background: #f5f5dc;
+            color: #432a1a;
+            transform: translateY(-2px);
+        }
+
+        /* Contenido principal */
+        .hero-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            padding: 40px 20px;
+        }
+
+        .wood-panel {
+            background-color: #432a1aff;
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(to right, #2d1810, #432a1a, #2d1810);
+            background-size: 100% 20px, 20px 100%, 100% 100%;
+            border: 4px solid #1a0f0a;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            padding: 50px 40px;
+            text-align: center;
+            max-width: 900px;
+            width: 90%;
+            animation: fadeIn 0.8s ease-out;
+            color: #f5f5dc;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+            border: 1px solid rgba(245, 245, 220, 0.15);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .user-info:hover {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(245, 245, 220, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #f5f5dc;
+            object-fit: cover;
+            display: none;
+        }
+
+        .user-avatar-placeholder {
+            width: 50px; height: 50px; border-radius: 50%; border: 3px solid #f5f5dc;
+            background:#ccc; display:flex; align-items:center; justify-content:center; font-size: 20px; color:#555;
+        }
+
+        .user-details {
+            text-align: left;
+        }
+
+        .user-details .user-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f5f5dc;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .user-details .user-email {
+            font-size: 14px;
+            color: #e8dcc4;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .panel-title {
+            font-size: 38px;
+            font-family: 'Rye', serif;
+            color: #f5f5dc;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+            line-height: 1.2;
+        }
+
+        .panel-subtitle {
+            font-size: 20px;
+            color: #e8dcc4;
+            line-height: 1.6;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            margin-bottom: 40px;
+        }
+
+        /* Menú Vertical */
+        .menu-section {
+            text-align: left;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .menu-category {
+            font-size: 15px;
+            color: #e8dcc4;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            margin-top: 25px;
+            border-bottom: 1px solid rgba(245, 245, 220, 0.2);
+            padding-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: #f5f5dc;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(245, 245, 220, 0.4);
+            transform: translateX(8px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-item svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .menu-item.logout {
+            color: #ff6b6b;
+            margin-top: 25px;
+            background: rgba(255, 107, 107, 0.05);
+            border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        .menu-item.logout:hover {
+            background: rgba(255, 107, 107, 0.15);
+            border-color: rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 0 20px;
+                height: auto;
+                padding-top: 15px;
+                padding-bottom: 15px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .header-logo span {
+                font-size: 32px;
+            }
+
+            .wood-panel {
+                padding: 40px 20px;
+            }
+
+            .panel-title {
+                font-size: 28px;
+            }
+
+            .menu-section {
+                max-width: 100%;
+            }
+
+            .menu-item {
+                font-size: 16px;
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Franja superior tipo madera -->
+    <header class="top-bar">
+        <div class="header-logo">
+            <img src="/Barber_Manager/images/splash-logo.png" alt="BarberApp Logo">
+            <span>Barber Manager</span>
+        </div>
+        <a id="btn-logout-header" class="logout-link">Cerrar sesión</a>
+    </header>
+
+    <main class="hero-section">
+        <div class="wood-panel">
+            <!-- Info del usuario logueado (Clickable) -->
+            <a href="/Barber_Manager/perfil.html" class="user-info">
+                <img src="" alt="Avatar" class="user-avatar" id="avatar-img">
+                <div class="user-avatar-placeholder" id="avatar-placeholder">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <div class="user-details">
+                    <div class="user-name" id="user-name">Cargando...</div>
+                    <div class="user-email" id="user-email">...</div>
+                </div>
+            </a>
+
+            <h1 class="panel-title">¿Qué deseas hacer hoy?</h1>
+            <p class="panel-subtitle">Selecciona una opción del menú</p>
+
+            <div class="menu-section">
+                
+                <div class="menu-category">Tu empresa</div>
+                <a href="/Barber_Manager/nueva_empresa.html" class="menu-item">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                        <path d="M9 22v-4h6v4"></path>
+                        <path d="M8 6h.01"></path>
+                        <path d="M16 6h.01"></path>
+                        <path d="M12 6h.01"></path>
+                        <path d="M12 10h.01"></path>
+                        <path d="M12 14h.01"></path>
+                        <path d="M16 10h.01"></path>
+                        <path d="M16 14h.01"></path>
+                        <path d="M8 10h.01"></path>
+                        <path d="M8 14h.01"></path>
+                    </svg>
+                    Nueva empresa
+                </a>
+
+                <div class="menu-category">Sección clientes</div>
+                <a href="#" class="menu-item">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <line x1="12" y1="14" x2="12" y2="18"></line>
+                        <line x1="10" y1="16" x2="14" y2="16"></line>
+                    </svg>
+                    Nuevo turno
+                </a>
+                <a href="#" class="menu-item">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <line x1="8" y1="14" x2="8" y2="18"></line>
+                        <line x1="16" y1="14" x2="16" y2="18"></line>
+                        <line x1="3" y1="14" x2="21" y2="14"></line>
+                    </svg>
+                    Mis turnos
+                </a>
+
+                <a id="btn-logout" class="menu-item logout">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Salir
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/Barber_Manager/api/auth/me');
+                if (!res.ok) {
+                    window.location.href = '/Barber_Manager/login.html';
+                    return;
+                }
+                const data = await res.json();
+                const user = data.user;
+
+                if (user.picture) {
+                    document.getElementById('avatar-img').src = user.picture;
+                    document.getElementById('avatar-img').style.display = 'block';
+                    document.getElementById('avatar-placeholder').style.display = 'none';
+                }
+
+                document.getElementById('user-name').textContent = user.name || 'Sin nombre';
+                document.getElementById('user-email').textContent = user.email || '';
+
+            } catch (error) {
+                console.error('Error fetching user info:', error);
+            }
+        });
+
+        async function logout() {
+            try {
+                const res = await fetch('/Barber_Manager/api/logout', { method: 'POST' });
+                const data = await res.json();
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            } catch (e) {}
+        }
+
+        document.getElementById('btn-logout').addEventListener('click', logout);
+        document.getElementById('btn-logout-header').addEventListener('click', logout);
+    </script>
+</body>
+
+</html>

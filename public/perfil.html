@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Rye&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Barber Manager - Mi Perfil</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: repeating-linear-gradient(135deg,
+                    #ffffff 0px, #ffffff 40px,
+                    #c8102e 40px, #c8102e 80px,
+                    #ffffff 80px, #ffffff 120px,
+                    #134a7a 120px, #134a7a 160px);
+            min-height: 100vh;
+            display: flex; flex-direction: column; overflow-x: hidden;
+        }
+        .top-bar {
+            width: 100%; height: 145px;
+            background-color: #432a1aff;
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(to right, #2d1810, #4a2f1d, #2d1810);
+            background-size: 100% 20px, 20px 100%, 100% 100%;
+            border-bottom: 4px solid #1a0f0a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 50px; z-index: 10;
+        }
+        .header-logo { display: flex; align-items: center; gap: 20px; }
+        .header-logo img { height: 170px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6)); transition: all 0.3s ease; }
+        .header-logo img:hover { filter: drop-shadow(0 0 15px rgba(255,255,255,0.8)); transform: scale(1.05); }
+        .header-logo span { font-family: 'Rye', serif; color: #f5f5dc; font-size: 50px; text-shadow: 3px 3px 6px rgba(0,0,0,0.9); }
+        
+        .back-link {
+            color: #f5f5dc; text-decoration: none; font-weight: 700; font-size: 14px;
+            padding: 12px 22px; border-radius: 999px; border: 2px solid rgba(245,245,220,0.45);
+            background: rgba(255,255,255,0.05); transition: all 0.25s ease;
+        }
+        .back-link:hover { background: #f5f5dc; color: #432a1a; transform: translateY(-2px); }
+
+        .hero-section { display: flex; justify-content: center; align-items: center; flex-grow: 1; padding: 40px 20px; }
+        
+        .wood-panel {
+            background-color: #432a1aff;
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(to right, #2d1810, #432a1a, #2d1810);
+            background-size: 100% 20px, 20px 100%, 100% 100%;
+            border: 4px solid #1a0f0a; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            padding: 50px 40px; text-align: center; max-width: 600px; width: 100%;
+            animation: fadeIn 0.8s ease-out; color: #f5f5dc;
+        }
+        
+        .profile-header {
+            display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 30px;
+        }
+        .profile-avatar {
+            width: 120px; height: 120px; border-radius: 50%; border: 4px solid #f5f5dc;
+            object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            display: none;
+        }
+        .profile-avatar-placeholder {
+            width: 120px; height: 120px; border-radius: 50%; border: 4px solid #f5f5dc;
+            background:#ccc; display:flex; align-items:center; justify-content:center; font-size: 40px; color:#555;
+        }
+        .panel-title {
+            font-size: 32px; font-family: 'Rye', serif; color: #f5f5dc;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8); line-height: 1.2;
+        }
+
+        .profile-details {
+            background: rgba(0, 0, 0, 0.25); border-radius: 12px;
+            border: 1px solid rgba(245, 245, 220, 0.15); padding: 25px;
+            text-align: left;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .detail-group {
+            display: flex; flex-direction: column;
+        }
+        .detail-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .detail-label {
+            font-size: 14px; color: #e8dcc4; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+        .detail-input {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px; color: #f5f5dc; font-weight: 600;
+            padding: 12px 15px; background: rgba(0,0,0,0.3); border-radius: 8px;
+            border: 1px solid rgba(245,245,220,0.2);
+            outline: none; transition: all 0.3s ease;
+        }
+        .detail-input:focus {
+            background: rgba(0,0,0,0.5);
+            border-color: rgba(245,245,220,0.6);
+            box-shadow: 0 0 8px rgba(245,245,220,0.2);
+        }
+        .detail-input:disabled, .detail-input[readonly] {
+            background: rgba(0,0,0,0.1);
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        select.detail-input {
+            appearance: none;
+            color: #ccc;
+        }
+        select.detail-input option {
+            color: black;
+        }
+        
+        .submit-btn {
+            grid-column: 1 / -1;
+            margin-top: 15px;
+            padding: 15px;
+            font-size: 18px; font-weight: 700; color: #432a1a;
+            background: #f5f5dc; border: none; border-radius: 8px;
+            cursor: pointer; transition: all 0.3s ease;
+            text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            background: #fff;
+        }
+
+        .success-message {
+            background-color: rgba(46, 204, 113, 0.2);
+            border: 1px solid #2ecc71;
+            color: #f5f5dc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .error-message {
+            background-color: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #f5f5dc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar { flex-direction: column; height: auto; padding: 15px 20px; gap: 15px; }
+            .header-logo span { font-size: 32px; }
+            .wood-panel { padding: 30px 20px; }
+            .panel-title { font-size: 26px; }
+            .profile-details { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <div class="header-logo">
+            <img src="/Barber_Manager/images/splash-logo.png" alt="BarberApp Logo">
+            <span>Barber Manager</span>
+        </div>
+        <a href="/Barber_Manager/seleccion_rol.html" class="back-link">Volver</a>
+    </header>
+
+    <main class="hero-section">
+        <div class="wood-panel">
+            <div class="success-message" id="msg-success">¡Tu perfil ha sido actualizado correctamente!</div>
+            <div class="error-message" id="msg-error">Hubo un error.</div>
+            
+            <div class="profile-header">
+                <img src="" alt="Avatar" class="profile-avatar" id="avatar-img">
+                <div class="profile-avatar-placeholder" id="avatar-placeholder">
+                    <svg viewBox="0 0 24 24" width="60" height="60" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <h1 class="panel-title">Mi Perfil</h1>
+            </div>
+
+            <form class="profile-details" id="profile-form">
+                <div class="detail-group">
+                    <label class="detail-label" for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" class="detail-input" required>
+                </div>
+                <div class="detail-group">
+                    <label class="detail-label" for="apellido">Apellido</label>
+                    <input type="text" id="apellido" name="apellido" class="detail-input" required>
+                </div>
+                <div class="detail-group full-width">
+                    <label class="detail-label" for="email">Email</label>
+                    <input type="email" id="email" name="email" class="detail-input" readonly title="El correo electrónico no se puede modificar">
+                </div>
+                <div class="detail-group">
+                    <label class="detail-label" for="dob">Fecha de Nacimiento</label>
+                    <input type="date" id="dob" name="dob" class="detail-input">
+                </div>
+                <div class="detail-group">
+                    <label class="detail-label" for="gender">Género</label>
+                    <select id="gender" name="gender" class="detail-input">
+                        <option value="">Seleccionar...</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                        <option value="Otro">Otro</option>
+                        <option value="Prefiero no decirlo">Prefiero no decirlo</option>
+                    </select>
+                </div>
+                <div class="detail-group full-width">
+                    <label class="detail-label" for="phone">Número de Teléfono</label>
+                    <input type="tel" id="phone" name="phone" class="detail-input" placeholder="+54 11 1234-5678">
+                </div>
+                
+                <div class="buttons-row" style="grid-column: 1 / -1; display: flex; gap: 15px; margin-top: 15px;">
+                    <button type="submit" class="submit-btn" style="margin-top: 0;">Guardar Cambios</button>
+                    <a href="/Barber_Manager/nueva_empresa.html" id="btn-empresa" class="submit-btn" style="background: #134a7a; color: #f5f5dc; text-decoration: none; text-align: center; display: none; align-items: center; justify-content: center; flex: 1;">Mi Empresa</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/Barber_Manager/api/auth/me');
+                if (!res.ok) {
+                    window.location.href = '/Barber_Manager/login.html';
+                    return;
+                }
+                const data = await res.json();
+                const user = data.user;
+
+                if (user.picture) {
+                    document.getElementById('avatar-img').src = user.picture;
+                    document.getElementById('avatar-img').style.display = 'block';
+                    document.getElementById('avatar-placeholder').style.display = 'none';
+                }
+
+                const partesNombre = user.name ? user.name.split(' ') : [''];
+                document.getElementById('nombre').value = partesNombre[0] || '';
+                document.getElementById('apellido').value = partesNombre.slice(1).join(' ') || '';
+                document.getElementById('email').value = user.email || '';
+                document.getElementById('dob').value = user.dob || '';
+                document.getElementById('gender').value = user.gender || '';
+                document.getElementById('phone').value = user.phone || '';
+
+                if (user.empresa) {
+                    document.getElementById('btn-empresa').style.display = 'flex';
+                }
+
+                document.getElementById('gender').style.color = user.gender ? '#f5f5dc' : '#ccc';
+                document.getElementById('gender').addEventListener('change', function() {
+                    this.style.color = this.value ? '#f5f5dc' : '#ccc';
+                });
+
+            } catch (error) {
+                console.error('Error fetching user info:', error);
+            }
+        });
+
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const res = await fetch('/Barber_Manager/api/perfil', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                
+                if (result.ok) {
+                    document.getElementById('msg-success').style.display = 'block';
+                    document.getElementById('msg-error').style.display = 'none';
+                    setTimeout(() => document.getElementById('msg-success').style.display = 'none', 3000);
+                } else {
+                    document.getElementById('msg-error').textContent = result.message || 'Error al guardar';
+                    document.getElementById('msg-error').style.display = 'block';
+                    document.getElementById('msg-success').style.display = 'none';
+                }
+            } catch (error) {
+                document.getElementById('msg-error').textContent = 'Error de red';
+                document.getElementById('msg-error').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

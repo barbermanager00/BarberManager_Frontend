@@ -1,11 +1,2 @@
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /Barber_Manager/
-    
-    # Permitir archivos y directorios reales
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    
-    # Reescribir todo a index.php
-    RewriteRule ^(.*)$ index.php [L,QSA]
-</IfModule>
+# Las reglas de rewrite se manejan en httpd.conf (sección Alias Barber_Manager)
+# Este archivo solo necesita estar presente para que Apache no muestre errores.

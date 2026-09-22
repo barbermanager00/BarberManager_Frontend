@@ -1,21 +1,18 @@
-<?php
-
-/**
- * VISTA: splash.php
- * =================
- * Esta es la PRIMERA PÁGINA que ve el usuario cuando accede a la aplicación.
- * 
- * Qué hace:
- * - Muestra el logo/imagen del BarberApp de forma elegante
- * - Aplica animación de entrada (zoom y fade-in)
- * - Después de 3 segundos, redirige automáticamente a /welcome
- * 
- * Diseño:
- * - Fondo a rayas con colores de barbería (rojo, blanco, azul)
- * - Imagen centrada con sombra proyectada
- * - Animación suave y moderna
- */
-?>
+<!--
+  VISTA: splash.php
+  =================
+  Esta es la PRIMERA PÁGINA que ve el usuario cuando accede a la aplicación.
+  
+  Qué hace:
+  - Muestra el logo/imagen del BarberApp de forma elegante
+  - Aplica animación de entrada (zoom y fade-in)
+  - Después de 3 segundos, redirige automáticamente a /welcome.html
+  
+  Diseño:
+  - Fondo a rayas con colores de barbería (rojo, blanco, azul)
+  - Imagen centrada con sombra proyectada
+  - Animación suave y moderna
+-->
 <!DOCTYPE html>
 <html lang="es">
 
@@ -108,7 +105,7 @@
         // Cuando la página termina de cargar, espera 3 segundos y redirige a welcome.php
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
-                window.location.href = '/Barber_Manager/welcome';
+                window.location.href = '/Barber_Manager/welcome.html';
             }, 3000);
         });
     </script>
