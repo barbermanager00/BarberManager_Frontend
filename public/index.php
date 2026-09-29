@@ -2,44 +2,48 @@
 
 declare(strict_types=1);
 
-session_start();
+// 1. CARGA DE DEPENDENCIAS Y CONFIGURACIÓN
+require_once __DIR__ . '/../vendor/autoload.php';      // Autoload de Composer (Eloquent)
+require_once __DIR__ . '/../config/autoload.php';      // Autoload de clases App\*
+require_once __DIR__ . '/../config/database.php';      // Conexión a la DB
+require_once __DIR__ . '/../models/Barberia.php';      // Modelo de la tabla barberias
+require_once __DIR__ . '/../models/Barbero.php';       // Modelo de la tabla barberos
+require_once __DIR__ . '/../models/Turno.php';         // Modelo de la tabla turnos
 
-require_once __DIR__ . '/../vendor/autoload.php';      
-require_once __DIR__ . '/../config/autoload.php';      
-require_once __DIR__ . '/../config/database.php';      
-require_once __DIR__ . '/../models/Barberia.php';      
-require_once __DIR__ . '/../models/Barbero.php';       
-require_once __DIR__ . '/../models/Turno.php';         
-
+use App\Router;
 use App\Controllers\TurnoController;
 use App\Controllers\BarberoController;
-use App\Router;
 
+// 2. INICIALIZAR EL ENRUTADOR DE LA API
 $router = new Router();
 
-// Redirigir el index a la pantalla inicial (splash.html)
-$router->get('/', function() {
-    header('Location: /Barber_Manager/splash.html');
-    exit;
+// ============================================
+// REGISTRO DE RUTAS DE LA API REST
+// ============================================
+
+// Health Check / Estado de la API (GET /)
+$router->get('/', function () {
+    header('Content-Type: application/json');
+    echo json_encode([
+        "ok" => true,
+        "name" => "Barber Manager API",
+        "version" => "1.0.0",
+        "status" => "active"
+    ], JSON_UNESCAPED_UNICODE);
 });
 
-// API Endpoints para Autenticación y Usuarios
-$router->get('/api/auth/me', [BarberoController::class, 'me']);
-$router->get('/api/google-auth', [BarberoController::class, 'googleAuth']);
-$router->get('/api/google-callback', [BarberoController::class, 'googleCallback']);
-$router->post('/api/login-email', [BarberoController::class, 'loginEmailRequest']);
-$router->post('/api/login-email-confirm', [BarberoController::class, 'loginEmailConfirm']);
-$router->post('/api/logout', [BarberoController::class, 'logout']);
-$router->post('/api/perfil', [BarberoController::class, 'guardarPerfil']);
+// --- RUTAS DE TURNOS ---
+$router->get('/turnos', [TurnoController::class, 'listar']);
+$router->post('/turnos', [TurnoController::class, 'crear']);
 
-// API Endpoints para Empresa
-$router->post('/api/nueva-empresa', [BarberoController::class, 'guardarEmpresa']);
+// --- RUTAS DE BARBERÍAS ---
+$router->get('/barber', [BarberoController::class, 'listarBarberias']);
+$router->post('/barber', [BarberoController::class, 'registrarBarberia']);
+$router->get('/barber/{id}', [BarberoController::class, 'obtenerBarberia']);
 
-// API Endpoints para Turnos
-$router->post('/api/turnos', [TurnoController::class, 'crear']);
-$router->get('/api/turnos', [TurnoController::class, 'listar']);
+// --- RUTAS DE BARBEROS ---
+$router->get('/barberos', [BarberoController::class, 'listar']);
+$router->post('/barberos', [BarberoController::class, 'registrar']);
 
-// API Endpoints para Barberos
-$router->get('/api/barberos', [BarberoController::class, 'listar']);
-
-$router->resolve($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
+// 3. DESPACHAR SOLICITUD ENTRANTE
+$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

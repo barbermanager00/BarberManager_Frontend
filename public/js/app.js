@@ -9,6 +9,9 @@
  * - Recargar datos después de guardar
  */
 
+// Base URL del backend (ajustar si el backend corre en otro puerto o dominio)
+const BASE_URL = window.BACKEND_URL || 'http://localhost/Barber_Manager';
+
 // ========== INICIALIZACIÓN ==========
 // Cuando la página HTML termina de cargar, ejecutar estas funciones
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,13 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
 async function cargarBarberos() {
     // Obtener el elemento <select> con ID 'barberoId'
     const selectBarberos = document.getElementById('barberoId');
+    if (!selectBarberos) return;
+
     console.log('Iniciando carga de barberos...');
 
     try {
-        // Hacer solicitud HTTP GET al servidor
-        // Esto obtiene el listado de barberos desde la API
-        console.log('Haciendo fetch a /Barber_Manager/barberos');
-        const response = await fetch('/Barber_Manager/barberos');
+        // Hacer solicitud HTTP GET al servidor backend usando BASE_URL
+        console.log(`Haciendo fetch a ${BASE_URL}/barberos`);
+        const response = await fetch(`${BASE_URL}/barberos`);
 
         // Verificar que la solicitud fue exitosa
         console.log('Respuesta recibida:', response.status);
@@ -46,7 +50,7 @@ async function cargarBarberos() {
             throw new Error(`Error ${response.status}: No se pudo obtener los barberos`);
         }
 
-        // Convertir la respuesta de texto a JSON
+        // Convertir la respuesta a JSON
         const text = await response.text();
         console.log('Texto crudo recibido:', text);
 
@@ -87,17 +91,17 @@ async function cargarBarberos() {
  * Cargar turnos y mostrarlos en la tabla
  * 
  * Esta función:
- * 1. Obtiene todos los turnos del servidor
+ * 1. Obtiene todos los turnos del servidor backend usando BASE_URL
  * 2. Los muestra en una tabla HTML
  */
 async function cargarTurnos() {
     // Obtener el <tbody> (cuerpo de la tabla)
     const cuerpoTabla = document.getElementById('cuerpo-tabla');
+    if (!cuerpoTabla) return;
 
     try {
-        // Hacer solicitud HTTP GET al servidor
-        // Obtiene listado de todos los turnos
-        const response = await fetch('/Barber_Manager/turnos');
+        // Hacer solicitud HTTP GET al servidor backend
+        const response = await fetch(`${BASE_URL}/turnos`);
         // Convertir respuesta a JSON
         const turnos = await response.json();
 
@@ -105,22 +109,23 @@ async function cargarTurnos() {
         cuerpoTabla.innerHTML = '';
 
         // Para cada turno, crear una fila en la tabla
-        turnos.forEach(turno => {
-            // Crear una fila <tr>
-            const fila = document.createElement('tr');
-            // Llenar la fila con datos del turno
-            fila.innerHTML = `
-                <td>${turno.clienteNombre}</td>
-                <td>${turno.clienteTelefono}</td>
-                <td>${turno.nombreBarbero}</td>
-                <td>${turno.fecha}</td>
-                <td>${turno.hora}</td>
-                <td>${turno.servicio || '-'}</td>
-            `;
-            // Agregar la fila a la tabla
-            cuerpoTabla.appendChild(fila);
-        });
-
+        if (Array.isArray(turnos)) {
+            turnos.forEach(turno => {
+                // Crear una fila <tr>
+                const fila = document.createElement('tr');
+                // Llenar la fila con datos del turno
+                fila.innerHTML = `
+                    <td>${turno.clienteNombre}</td>
+                    <td>${turno.clienteTelefono}</td>
+                    <td>${turno.nombreBarbero}</td>
+                    <td>${turno.fecha}</td>
+                    <td>${turno.hora}</td>
+                    <td>${turno.servicio || '-'}</td>
+                `;
+                // Agregar la fila a la tabla
+                cuerpoTabla.appendChild(fila);
+            });
+        }
     } catch (error) {
         console.error('Error al cargar turnos:', error);
     }
@@ -131,57 +136,59 @@ async function cargarTurnos() {
 // Obtener el formulario del HTML
 const form = document.querySelector('form');
 
-// Cuando el usuario envía el formulario, ejecutar esta función
-form.addEventListener('submit', async (e) => {
-    // Prevenir el comportamiento por defecto (recargar página)
-    e.preventDefault();
+if (form) {
+    // Cuando el usuario envía el formulario, ejecutar esta función
+    form.addEventListener('submit', async (e) => {
+        // Prevenir el comportamiento por defecto (recargar página)
+        e.preventDefault();
 
-    // Obtener elementos para mostrar errores
-    const panelErrores = document.getElementById('panel-errores');
-    const listaErrores = document.getElementById('lista-errores');
+        // Obtener elementos para mostrar errores
+        const panelErrores = document.getElementById('panel-errores');
+        const listaErrores = document.getElementById('lista-errores');
 
-    // Ocultar errores previos (limpiar panel de errores)
-    panelErrores.style.display = 'none';
-    listaErrores.innerHTML = '';
+        // Ocultar errores previos (limpiar panel de errores)
+        if (panelErrores) panelErrores.style.display = 'none';
+        if (listaErrores) listaErrores.innerHTML = '';
 
-    // Capturar los datos del formulario
-    const formData = new FormData(form);
+        // Capturar los datos del formulario
+        const formData = new FormData(form);
 
-    try {
-        // Enviar los datos al servidor mediante POST
-        const response = await fetch('/Barber_Manager/turnos', {
-            method: 'POST',
-            body: formData  // Enviar como FormData para que PHP lo lea en $_POST
-        });
+        try {
+            // Enviar los datos al servidor backend mediante POST usando BASE_URL
+            const response = await fetch(`${BASE_URL}/turnos`, {
+                method: 'POST',
+                body: formData  // Enviar como FormData para que PHP lo lea en $_POST
+            });
 
-        // Convertir respuesta a JSON
-        const resultado = await response.json();
+            // Convertir respuesta a JSON
+            const resultado = await response.json();
 
-        // Si todo salió bien
-        if (response.ok && resultado.ok) {
-            // Mostrar mensaje de éxito
-            alert('¡Turno reservado con éxito!');
-            // Limpiar los campos del formulario
-            form.reset();
-            // Recargar la tabla con el nuevo turno
-            cargarTurnos();
-        } else {
-            // Si hay errores, mostrar el panel de errores
-            panelErrores.style.display = 'block';
-            // Agregar cada error a la lista
-            if (resultado.errors) {
-                resultado.errors.forEach(err => {
-                    const li = document.createElement('li');
-                    li.textContent = err;
-                    listaErrores.appendChild(li);
-                });
+            // Si todo salió bien
+            if (response.ok && resultado.ok) {
+                // Mostrar mensaje de éxito
+                alert('¡Turno reservado con éxito!');
+                // Limpiar los campos del formulario
+                form.reset();
+                // Recargar la tabla con el nuevo turno
+                cargarTurnos();
             } else {
-                // Mostrar error genérico si no hay lista de errores
-                alert('Error: ' + (resultado.error || 'Ocurrió un problema'));
+                // Si hay errores, mostrar el panel de errores
+                if (panelErrores) panelErrores.style.display = 'block';
+                // Agregar cada error a la lista
+                if (resultado.errors && listaErrores) {
+                    resultado.errors.forEach(err => {
+                        const li = document.createElement('li');
+                        li.textContent = err;
+                        listaErrores.appendChild(li);
+                    });
+                } else {
+                    // Mostrar error genérico si no hay lista de errores
+                    alert('Error: ' + (resultado.error || 'Ocurrió un problema'));
+                }
             }
+        } catch (error) {
+            console.error('Error en la comunicación:', error);
+            alert('No se pudo conectar con el servidor.');
         }
-    } catch (error) {
-        console.error('Error en la comunicación:', error);
-        alert('No se pudo conectar con el servidor.');
-    }
-});
+    });
+}
